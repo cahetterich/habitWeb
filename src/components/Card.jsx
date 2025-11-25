@@ -2,7 +2,7 @@
 
 import { colors, radius, spacing } from "@/lib/designSystem";
 
-export default function Card({ children, style }) {
+export default function Card({ children, style, className, ...rest }) {
   const baseStyle = {
     backgroundColor: colors.surface,
     borderRadius: radius.md,
@@ -15,10 +15,12 @@ export default function Card({ children, style }) {
 
   return (
     <div
+      className={className}
       style={{
         ...baseStyle,
         ...style,
       }}
+      {...rest}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow =
           "0 22px 50px rgba(15, 23, 42, 0.06)";
@@ -36,4 +38,3 @@ export default function Card({ children, style }) {
     </div>
   );
 }
-

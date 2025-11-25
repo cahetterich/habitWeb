@@ -1,78 +1,32 @@
-"use client";
+﻿"use client";
 
 import Card from "@/components/Card";
 import LayoutContainer from "@/components/LayoutContainer";
-import { colors, spacing, radius } from "@/lib/designSystem";
+import { colors } from "@/lib/designSystem";
 import { baseHabits } from "@/lib/habitsData";
 import { useTodayHabits } from "@/lib/useTodayHabits";
 import { useAuth } from "@/context/AuthContext";
+import "@/styles/dashboard.css";
 
 // Card de métrica com topo em gradiente
 function MetricCard({ label, value, suffix, subtitle, gradient }) {
   return (
-    <div
-      style={{
-        borderRadius: radius.lg || 20,
-        overflow: "hidden",
-        backgroundColor: colors.surface,
-        border: `1px solid ${colors.border}`,
-        boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
-        display: "flex",
-        flexDirection: "column",
-        minHeight: 120,
-      }}
-    >
+    <div className="hf-metric-card">
       <div
+        className="hf-metric-top"
         style={{
-          padding: spacing.sm,
           backgroundImage:
             gradient || `linear-gradient(135deg, ${colors.primary}, #73A9A9)`,
-          color: "#FFFFFF",
-          fontSize: 13,
-          fontWeight: 600,
         }}
       >
         {label}
       </div>
-      <div
-        style={{
-          padding: spacing.md,
-          display: "flex",
-          flexDirection: "column",
-          gap: 4,
-        }}
-      >
-        <p
-          style={{
-            margin: 0,
-            fontSize: 28,
-            fontWeight: 600,
-          }}
-        >
+      <div className="hf-metric-body">
+        <p className="hf-metric-value">
           {value}
-          {suffix && (
-            <span
-              style={{
-                fontSize: 15,
-                marginLeft: 4,
-                fontWeight: 500,
-              }}
-            >
-              {suffix}
-            </span>
-          )}
+          {suffix && <span className="hf-metric-suffix">{suffix}</span>}
         </p>
-        {subtitle && (
-          <p
-            style={{
-              margin: 0,
-              fontSize: 12,
-              color: colors.textMuted,
-            }}
-          >
-            {subtitle}
-          </p>
-        )}
+        {subtitle && <p className="hf-metric-subtitle">{subtitle}</p>}
       </div>
     </div>
   );
@@ -97,117 +51,40 @@ export default function DashboardPage() {
 
   return (
     <LayoutContainer maxWidth={1040}>
-      <section
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: spacing.lg,
-          paddingTop: spacing.xl,
-          paddingBottom: spacing.xl,
-        }}
-      >
+      <section className="hf-dashboard-section">
         {/* topo: texto + resumo */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 1fr)",
-            gap: spacing.lg,
-            alignItems: "stretch",
-          }}
-        >
+        <div className="hf-dashboard-hero">
           <div>
-            <h1
-              style={{
-                fontSize: 28,
-                fontWeight: 600,
-                marginBottom: 4,
-              }}
-            >
-              Olá, {firstName} 👋
-            </h1>
-            <p
-              style={{
-                color: colors.textMuted,
-                fontSize: 14,
-                maxWidth: 520,
-              }}
-            >
+            <h1 className="hf-dashboard-title">Olá, {firstName} 👋</h1>
+            <p className="hf-dashboard-subtitle">
               Aqui está uma visão geral dos seus hábitos. Acompanhe o que você
               precisa fazer hoje e como anda o seu progresso.
             </p>
           </div>
 
-          <Card
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: spacing.sm,
-            }}
-          >
-            <h2
-              style={{
-                fontSize: 16,
-                margin: 0,
-                fontWeight: 600,
-              }}
-            >
-              Resumo de hoje
-            </h2>
-            <p
-              style={{
-                fontSize: 14,
-                color: colors.textMuted,
-                margin: 0,
-              }}
-            >
-              Hoje você concluiu{" "}
-              <strong>
-                {doneCount} de {totalHabits} hábitos
-              </strong>
-              .
-            </p>
+          <Card>
+            <div className="hf-summary-card">
+              <h2 className="hf-summary-title">Resumo de hoje</h2>
+              <p className="hf-summary-text">
+                Hoje você concluiu <strong>{doneCount} de {totalHabits} hábitos</strong>.
+              </p>
 
-            <div
-              style={{
-                height: 8,
-                borderRadius: 999,
-                backgroundColor: colors.primarySoft,
-                overflow: "hidden",
-                marginTop: spacing.sm,
-              }}
-            >
-              <div
-                style={{
-                  width: `${progressPercent}%`,
-                  height: "100%",
-                  backgroundColor: colors.primary,
-                  transition: "width 0.2s ease",
-                }}
-              />
+              <div className="hf-progress-track">
+                <div
+                  className="hf-progress-fill"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+
+              <p className="hf-summary-streak">
+                Streak geral: <strong>{longestStreak} dias seguidos</strong>
+              </p>
             </div>
-
-            <p
-              style={{
-                fontSize: 13,
-                color: colors.textMuted,
-                margin: 0,
-                marginTop: spacing.sm,
-              }}
-            >
-              Streak geral:{" "}
-              <strong>{longestStreak} dias seguidos</strong>
-            </p>
           </Card>
         </div>
 
         {/* métricas com gradiente */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: spacing.lg,
-          }}
-        >
+        <div className="hf-metric-grid">
           <MetricCard
             label="Hábitos ativos"
             value={totalHabits}
@@ -231,17 +108,8 @@ export default function DashboardPage() {
 
         {/* hábitos de hoje */}
         <Card>
-          <h2 style={{ fontSize: 16, marginBottom: spacing.sm }}>
-            Hábitos de hoje
-          </h2>
-          <p
-            style={{
-              fontSize: 13,
-              color: colors.textMuted,
-              marginTop: 0,
-              marginBottom: spacing.md,
-            }}
-          >
+          <h2 className="hf-today-title">Hábitos de hoje</h2>
+          <p className="hf-today-subtitle">
             Veja rapidamente o status dos hábitos do dia. Você pode marcar como
             concluído na tela de Hábitos.
           </p>
@@ -249,25 +117,12 @@ export default function DashboardPage() {
           {baseHabits.map((habit) => {
             const done = isDone(habit.id);
             return (
-              <div
-                key={habit.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: `${spacing.xs}px 0`,
-                  fontSize: 14,
-                  borderBottom: `1px solid ${colors.border}`,
-                }}
-              >
+              <div key={habit.id} className="hf-today-row">
                 <span>{habit.name}</span>
                 <span
-                  style={{
-                    fontSize: 13,
-                    color: done ? colors.success : colors.textMuted,
-                  }}
+                  className={`hf-today-status ${done ? "is-done" : "is-pending"}`}
                 >
-                  {done ? "✔ Concluído" : "Pendente"}
+                  {done ? "✅ Concluído" : "Pendente"}
                 </span>
               </div>
             );
@@ -276,37 +131,13 @@ export default function DashboardPage() {
 
         {/* gráfico */}
         <Card>
-          <h2 style={{ fontSize: 16, marginBottom: spacing.md }}>
-            Últimos 7 dias
-          </h2>
-          <div
-            aria-hidden="true"
-            style={{
-              display: "flex",
-              alignItems: "flex-end",
-              gap: spacing.sm,
-              height: 120,
-            }}
-          >
+          <h2 className="hf-graph-title">Últimos 7 dias</h2>
+          <div aria-hidden="true" className="hf-graph-bars">
             {[40, 60, 50, 80, 70, 65, 90].map((h, i) => (
-              <div
-                key={i}
-                style={{
-                  width: 18,
-                  height: `${h}%`,
-                  backgroundColor: colors.primary,
-                  borderRadius: 999,
-                }}
-              />
+              <div key={i} className="hf-graph-bar" style={{ height: `${h}%` }} />
             ))}
           </div>
-          <p
-            style={{
-              fontSize: 12,
-              color: colors.textMuted,
-              marginTop: spacing.sm,
-            }}
-          >
+          <p className="hf-graph-caption">
             Gráfico ilustrativo. Em breve, conectado aos dados reais.
           </p>
         </Card>

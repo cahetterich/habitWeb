@@ -1,0 +1,33 @@
+.hf-habits-section { display: flex; flex-direction: column; gap: 16px; }
+
+.hf-habits-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.hf-habits-title { font-size: 24px; }
+.hf-habits-subtitle { font-size: 14px; color: #6B7280; }
+
+.hf-habits-filter-card { display: flex; flex-direction: column; gap: 8px; }
+.hf-habits-filter-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.hf-habits-stats { font-size: 13px; color: #6B7280; }
+.hf-habits-filter-actions { display: flex; gap: 8px; }
+
+.hf-filter-pill { padding: 4px 12px; border-radius: 9999px; border: none; font-size: 13px; cursor: pointer; background-color: #EEF2FF; color: #4F46E5; transition: background-color 0.15s ease, color 0.15s ease; }
+.hf-filter-pill.is-active { background-color: #4F46E5; color: #FFFFFF; }
+
+.hf-habits-search { margin-top: 8px; }
+.hf-habits-search-label { font-size: 13px; color: #6B7280; display: block; margin-bottom: 4px; }
+.hf-habits-search-input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #E5E7EB; font-size: 14px; }
+
+.hf-habits-table-header { display: grid; grid-template-columns: 2fr 1fr 0.6fr 0.8fr 1fr; gap: 8px; font-size: 14px; padding-bottom: 8px; border-bottom: 1px solid #E5E7EB; margin-bottom: 8px; }
+.hf-habits-table-header span { font-weight: 600; }
+.hf-habits-table-header .hf-actions { text-align: right; }
+
+.hf-habits-row { display: grid; grid-template-columns: 2fr 1fr 0.6fr 0.8fr 1fr; gap: 8px; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #E5E7EB; align-items: center; }
+
+.hf-habit-link { text-decoration: none; color: inherit; }
+.hf-habit-link-text { border-bottom: 1px solid transparent; padding-bottom: 2px; }
+
+.hf-habit-actions { text-align: right; }
+
+.hf-habit-toggle { border-radius: 9999px; border: 1px solid #4F46E5; padding: 4px 12px; background: transparent; color: #4F46E5; font-size: 13px; cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease; }
+.hf-habit-toggle.is-done { border-color: #22C55E; background-color: #22C55E; color: #FFFFFF; }
+
+.hf-habits-empty { font-size: 14px; color: #6B7280; margin-top: 12px; }

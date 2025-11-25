@@ -4,9 +4,9 @@ import { useParams, useRouter } from "next/navigation";
 import LayoutContainer from "@/components/LayoutContainer";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
-import { colors, spacing } from "@/lib/designSystem";
 import { baseHabits } from "@/lib/habitsData";
 import { useTodayHabits } from "@/lib/useTodayHabits";
+import "@/styles/habit-detail.css";
 
 export default function HabitDetailPage() {
   const params = useParams();
@@ -19,28 +19,15 @@ export default function HabitDetailPage() {
   if (!habit) {
     return (
       <LayoutContainer maxWidth={720}>
-        <section
-          style={{
-            paddingTop: spacing.xl,
-            paddingBottom: spacing.xl,
-          }}
-        >
+        <section className="hf-habit-section">
           <Card>
-            <h1 style={{ fontSize: 20, marginBottom: spacing.sm }}>
-              H√°bito n√£o encontrado
-            </h1>
-            <p
-              style={{
-                fontSize: 14,
-                color: colors.textMuted,
-                marginBottom: spacing.md,
-              }}
-            >
-              N√£o encontramos um h√°bito com esse identificador. Ele pode ter
-              sido removido ou n√£o existe nesta vers√£o.
+            <h1 className="hf-not-found-title">H·bito n„o encontrado</h1>
+            <p className="hf-not-found-text">
+              N„o encontramos um h·bito com esse identificador. Ele pode ter
+              sido removido ou n„o existe nesta vers„o.
             </p>
             <Button type="button" onClick={() => router.push("/app/habits")}>
-              Voltar para a lista de h√°bitos
+              Voltar para a lista de h·bitos
             </Button>
           </Card>
         </section>
@@ -50,7 +37,7 @@ export default function HabitDetailPage() {
 
   const doneToday = isDone(habit.id);
 
-  // dados fake de hist√≥rico ‚Äì s√≥ pra visual
+  // dados fake de histÛrico ó sÛ pra visual
   const history = [
     { label: "Hoje", done: doneToday },
     { label: "Ontem", done: true },
@@ -63,226 +50,86 @@ export default function HabitDetailPage() {
 
   return (
     <LayoutContainer maxWidth={960}>
-      <section
-        style={{
-          paddingTop: spacing.lg,
-          paddingBottom: spacing.xl,
-          display: "flex",
-          flexDirection: "column",
-          gap: spacing.lg,
-        }}
-      >
+      <section className="hf-habit-section">
         {/* Breadcrumb simples */}
         <button
           type="button"
           onClick={() => router.push("/app/habits")}
-          style={{
-            border: "none",
-            background: "none",
-            padding: 0,
-            fontSize: 13,
-            color: colors.textMuted,
-            cursor: "pointer",
-            textAlign: "left",
-          }}
+          className="hf-habit-breadcrumb"
         >
-          ‚Üê Voltar para h√°bitos
+          ? Voltar para h·bitos
         </button>
 
         {/* Header */}
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 4 }}>
-            {habit.name}
-          </h1>
-          <p
-            style={{
-              fontSize: 14,
-              color: colors.textMuted,
-              marginBottom: spacing.sm,
-            }}
-          >
-            Acompanhe os detalhes, frequ√™ncia e progresso deste h√°bito.
+          <h1 className="hf-habit-title">{habit.name}</h1>
+          <p className="hf-habit-subtitle">
+            Acompanhe os detalhes, frequÍncia e progresso deste h·bito.
           </p>
-          <span
-            style={{
-              display: "inline-block",
-              padding: "4px 10px",
-              borderRadius: 999,
-              backgroundColor: "#EEF2FF",
-              color: colors.primary,
-              fontSize: 12,
-            }}
-          >
-            {habit.frequencyLabel}
-          </span>
+          <span className="hf-habit-frequency">{habit.frequencyLabel}</span>
         </div>
 
         {/* Grid de cards principais */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1.3fr) minmax(0, 1fr)",
-            gap: spacing.lg,
-          }}
-        >
+        <div className="hf-habit-main-grid">
           {/* Card Resumo / hoje */}
           <Card>
-            <h2
-              style={{
-                fontSize: 16,
-                marginTop: 0,
-                marginBottom: spacing.sm,
-              }}
-            >
-              Hoje
-            </h2>
-            <p
-              style={{
-                fontSize: 14,
-                color: colors.textMuted,
-                marginTop: 0,
-                marginBottom: spacing.md,
-              }}
-            >
-              Controle rapidamente se voc√™ j√° concluiu este h√°bito no dia.
+            <h2 className="hf-card-title">Hoje</h2>
+            <p className="hf-card-subtitle">
+              Controle rapidamente se vocÍ j· concluiu este h·bito no dia.
             </p>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: spacing.md,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 14,
-                  color: doneToday ? colors.success : colors.textMuted,
-                }}
-              >
-                Status de hoje:{" "}
-                <strong>{doneToday ? "Conclu√≠do" : "Pendente"}</strong>
+            <div className="hf-today-row">
+              <span className={`hf-today-status ${doneToday ? "is-done" : ""}`}>
+                Status de hoje: <strong>{doneToday ? "ConcluÌdo" : "Pendente"}</strong>
               </span>
               <Button type="button" onClick={() => toggleToday(habit.id)}>
-                {doneToday ? "Desmarcar hoje" : "Marcar como conclu√≠do"}
+                {doneToday ? "Desmarcar hoje" : "Marcar como concluÌdo"}
               </Button>
             </div>
 
-            <p
-              style={{
-                fontSize: 12,
-                color: colors.textMuted,
-                marginTop: 0,
-              }}
-            >
-              Na integra√ß√£o com a API, esta se√ß√£o ser√° atualizada em tempo real
-              com base nos registros di√°rios.
+            <p className="hf-card-note">
+              Na integraÁ„o com a API, esta seÁ„o ser· atualizada em tempo real
+              com base nos registros di·rios.
             </p>
           </Card>
 
-          {/* Card Streak / m√©tricas */}
+          {/* Card Streak / mÈtricas */}
           <Card>
-            <h2
-              style={{
-                fontSize: 16,
-                marginTop: 0,
-                marginBottom: spacing.sm,
-              }}
-            >
-              Progresso
-            </h2>
-            <p
-              style={{
-                fontSize: 14,
-                margin: 0,
-              }}
-            >
+            <h2 className="hf-card-title">Progresso</h2>
+            <p className="hf-progress-text">
               <strong>{habit.baseStreak} dias</strong> de streak atual
             </p>
-            <p
-              style={{
-                fontSize: 13,
-                color: colors.textMuted,
-                marginTop: spacing.sm,
-              }}
-            >
-              Nesta vers√£o usamos um valor fixo. Com a API, este n√∫mero
-              ser√° calculado com base no hist√≥rico real.
+            <p className="hf-progress-hint">
+              Nesta vers„o usamos um valor fixo. Com a API, este n˙mero ser·
+              calculado com base no histÛrico real.
             </p>
           </Card>
         </div>
 
-        {/* Card descri√ß√£o */}
+        {/* Card descriÁ„o */}
         <Card>
-          <h2
-            style={{
-              fontSize: 16,
-              marginTop: 0,
-              marginBottom: spacing.sm,
-            }}
-          >
-            Descri√ß√£o do h√°bito
-          </h2>
-          <p
-            style={{
-              fontSize: 14,
-              color: colors.textMuted,
-              marginTop: 0,
-            }}
-          >
+          <h2 className="hf-card-title">DescriÁ„o do h·bito</h2>
+          <p className="hf-description">
             {habit.description ||
-              "Voc√™ pode usar este espa√ßo para descrever por que este h√°bito √© importante, qual √© o objetivo e em que contexto ele ser√° realizado."}
+              "VocÍ pode usar este espaÁo para descrever por que este h·bito È importante, qual È o objetivo e em que contexto ele ser· realizado."}
           </p>
         </Card>
 
-        {/* Hist√≥rico visual simples */}
+        {/* HistÛrico visual simples */}
         <Card>
-          <h2
-            style={{
-              fontSize: 16,
-              marginTop: 0,
-              marginBottom: spacing.sm,
-            }}
-          >
-            Hist√≥rico recente (exemplo)
-          </h2>
-          <p
-            style={{
-              fontSize: 13,
-              color: colors.textMuted,
-              marginTop: 0,
-              marginBottom: spacing.md,
-            }}
-          >
-            Exemplo ilustrativo dos √∫ltimos 7 dias. Dias conclu√≠dos aparecem em
-            destaque. Na integra√ß√£o final, este hist√≥rico vir√° da API.
+          <h2 className="hf-card-title">HistÛrico recente (exemplo)</h2>
+          <p className="hf-history-description">
+            Exemplo ilustrativo dos ˙ltimos 7 dias. Dias concluÌdos aparecem em
+            destaque. Na integraÁ„o final, este histÛrico vir· da API.
           </p>
 
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: spacing.sm,
-            }}
-          >
+          <div className="hf-history-list">
             {history.map((day, index) => (
               <div
                 key={index}
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: 999,
-                  fontSize: 12,
-                  border: `1px solid ${
-                    day.done ? colors.primary : colors.border
-                  }`,
-                  backgroundColor: day.done
-                    ? "rgba(79, 70, 229, 0.06)"
-                    : "#FFFFFF",
-                  color: day.done ? colors.primary : colors.textMuted,
-                }}
+                className={`hf-history-badge ${day.done ? "is-done" : ""}`}
               >
-                {day.label} ‚Äì {day.done ? "‚úî" : "‚Äî"}
+                {day.label} ó {day.done ? "?" : "?"}
               </div>
             ))}
           </div>

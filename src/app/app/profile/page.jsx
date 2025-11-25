@@ -1,22 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import LayoutContainer from "@/components/LayoutContainer";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
-import { colors, spacing } from "@/lib/designSystem";
 import { useAuth } from "@/context/AuthContext";
-
-function getInputStyle(hasError) {
-  return {
-    marginTop: 4,
-    width: "100%",
-    padding: spacing.sm,
-    borderRadius: 8,
-    border: `1px solid ${hasError ? colors.error : colors.border}`,
-    fontSize: 14,
-  };
-}
+import "@/styles/profile.css";
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -153,93 +142,34 @@ export default function ProfilePage() {
 
   return (
     <LayoutContainer maxWidth={960}>
-      <section
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: spacing.lg,
-          paddingTop: spacing.lg,
-          paddingBottom: spacing.xl,
-        }}
-      >
-        {/* TÍTULO */}
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 4 }}>
-            Perfil
-          </h1>
-          <p style={{ fontSize: 14, color: colors.textMuted }}>
+      <section className="hf-profile-section">
+        {/* Título */}
+        <div className="hf-profile-header">
+          <h1 className="hf-profile-title">Perfil</h1>
+          <p className="hf-profile-subtitle">
             Ajuste seus dados básicos, preferências e configurações de
             segurança da sua conta.
           </p>
         </div>
 
         {/* GRID: DADOS + PREFERÊNCIAS */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 1fr)",
-            gap: spacing.lg,
-          }}
-        >
+        <div className="hf-profile-grid">
           {/* DADOS DA CONTA */}
           <Card>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: spacing.md,
-                marginBottom: spacing.lg,
-              }}
-            >
-              <div
-                aria-hidden="true"
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 999,
-                  backgroundColor: colors.primarySoft,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 600,
-                  color: colors.primary,
-                  fontSize: 18,
-                }}
-              >
+            <div className="hf-account-header">
+              <div aria-hidden="true" className="hf-profile-avatar">
                 {initialLetter}
               </div>
               <div>
-                <h2
-                  style={{
-                    fontSize: 16,
-                    margin: 0,
-                    marginBottom: 2,
-                  }}
-                >
-                  Dados da conta
-                </h2>
-                <p
-                  style={{
-                    fontSize: 13,
-                    margin: 0,
-                    color: colors.textMuted,
-                  }}
-                >
+                <h2 className="hf-account-title">Dados da conta</h2>
+                <p className="hf-account-subtitle">
                   Essas informações identificam você no HabitFlow.
                 </p>
               </div>
             </div>
 
-            <form
-              onSubmit={handleAccountSubmit}
-              noValidate
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: spacing.md,
-              }}
-            >
-              <label style={{ fontSize: 14 }}>
+            <form onSubmit={handleAccountSubmit} noValidate className="hf-profile-form">
+              <label className="hf-profile-label">
                 Nome
                 <input
                   id="profile-first-name"
@@ -253,23 +183,16 @@ export default function ProfilePage() {
                       ? "profile-first-name-error"
                       : undefined
                   }
-                  style={getInputStyle(!!accountErrors.firstName)}
+                  className={`hf-profile-input ${accountErrors.firstName ? "has-error" : ""}`}
                 />
                 {accountErrors.firstName && (
-                  <p
-                    id="profile-first-name-error"
-                    style={{
-                      fontSize: 12,
-                      color: colors.error,
-                      marginTop: 4,
-                    }}
-                  >
+                  <p id="profile-first-name-error" className="hf-profile-error">
                     {accountErrors.firstName}
                   </p>
                 )}
               </label>
 
-              <label style={{ fontSize: 14 }}>
+              <label className="hf-profile-label">
                 Sobrenome
                 <input
                   id="profile-last-name"
@@ -283,23 +206,16 @@ export default function ProfilePage() {
                       ? "profile-last-name-error"
                       : undefined
                   }
-                  style={getInputStyle(!!accountErrors.lastName)}
+                  className={`hf-profile-input ${accountErrors.lastName ? "has-error" : ""}`}
                 />
                 {accountErrors.lastName && (
-                  <p
-                    id="profile-last-name-error"
-                    style={{
-                      fontSize: 12,
-                      color: colors.error,
-                      marginTop: 4,
-                    }}
-                  >
+                  <p id="profile-last-name-error" className="hf-profile-error">
                     {accountErrors.lastName}
                   </p>
                 )}
               </label>
 
-              <label style={{ fontSize: 14 }}>
+              <label className="hf-profile-label">
                 Email
                 <input
                   id="profile-email"
@@ -311,112 +227,56 @@ export default function ProfilePage() {
                   aria-describedby={
                     accountErrors.email ? "profile-email-error" : undefined
                   }
-                  style={getInputStyle(!!accountErrors.email)}
+                  className={`hf-profile-input ${accountErrors.email ? "has-error" : ""}`}
                 />
                 {accountErrors.email && (
-                  <p
-                    id="profile-email-error"
-                    style={{
-                      fontSize: 12,
-                      color: colors.error,
-                      marginTop: 4,
-                    }}
-                  >
+                  <p id="profile-email-error" className="hf-profile-error">
                     {accountErrors.email}
                   </p>
                 )}
               </label>
 
-              <div
-                style={{
-                  marginTop: spacing.md,
-                  display: "flex",
-                  justifyContent: "flex-end",
-                }}
-              >
+              <div className="hf-profile-actions">
                 <Button type="submit">Salvar alterações</Button>
               </div>
 
               {accountMessage && (
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: colors.success,
-                    marginTop: spacing.sm,
-                  }}
-                >
-                  {accountMessage}
-                </p>
+                <p className="hf-profile-success">{accountMessage}</p>
               )}
             </form>
           </Card>
 
           {/* PREFERÊNCIAS */}
           <Card>
-            <h2
-              style={{
-                fontSize: 16,
-                marginTop: 0,
-                marginBottom: spacing.sm,
-              }}
-            >
-              Preferências
-            </h2>
-            <p
-              style={{
-                fontSize: 13,
-                color: colors.textMuted,
-                marginTop: 0,
-                marginBottom: spacing.md,
-              }}
-            >
+            <h2 className="hf-preferences-title">Preferências</h2>
+            <p className="hf-preferences-subtitle">
               Personalize a experiência visual e de notificações.
             </p>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: spacing.md,
-              }}
-            >
-              <label style={{ fontSize: 14 }}>
+            <div className="hf-preferences-fields">
+              <label className="hf-profile-label">
                 Tema
                 <select
                   value={theme}
                   onChange={(e) => setTheme(e.target.value)}
-                  style={getInputStyle(false)}
+                  className="hf-profile-input"
                 >
                   <option value="light">Claro</option>
                   <option value="dark">Escuro</option>
                 </select>
               </label>
 
-              <label
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: spacing.sm,
-                  fontSize: 14,
-                  cursor: "pointer",
-                }}
-              >
+              <label className="hf-preferences-checkbox">
                 <input
                   type="checkbox"
                   checked={notifications}
                   onChange={(e) => setNotifications(e.target.checked)}
-                  style={{ cursor: "pointer" }}
+                  className="hf-checkbox-input"
                 />
                 Receber lembretes e novidades por email
               </label>
 
-              <p
-                style={{
-                  fontSize: 12,
-                  color: colors.textMuted,
-                  marginTop: spacing.sm,
-                }}
-              >
+              <p className="hf-preferences-hint">
                 Essas opções são ilustrativas nesta versão demo. Na integração
                 final, serão salvas junto com a sua conta.
               </p>
@@ -426,110 +286,58 @@ export default function ProfilePage() {
 
         {/* SEGURANÇA / SENHA */}
         <Card>
-          <h2
-            style={{
-              fontSize: 16,
-              marginTop: 0,
-              marginBottom: spacing.sm,
-            }}
-          >
-            Segurança
-          </h2>
-          <p
-            style={{
-              fontSize: 13,
-              color: colors.textMuted,
-              marginTop: 0,
-              marginBottom: spacing.md,
-            }}
-          >
+          <h2 className="hf-security-title">Segurança</h2>
+          <p className="hf-security-subtitle">
             Altere sua senha com segurança. Na versão final, essa ação será
             validada no servidor.
           </p>
 
-          <form
-            onSubmit={handlePasswordSubmit}
-            noValidate
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: spacing.md,
-              maxWidth: 480,
-            }}
-          >
-            <label style={{ fontSize: 14 }}>
+          <form onSubmit={handlePasswordSubmit} noValidate className="hf-security-form">
+            <label className="hf-profile-label">
               Senha atual
               <input
                 type="password"
                 name="current"
                 value={passwordForm.current}
                 onChange={handlePasswordChange}
-                style={getInputStyle(false)}
+                className="hf-profile-input"
               />
             </label>
 
-            <label style={{ fontSize: 14 }}>
+            <label className="hf-profile-label">
               Nova senha
               <input
                 type="password"
                 name="next"
                 value={passwordForm.next}
                 onChange={handlePasswordChange}
-                style={getInputStyle(false)}
+                className="hf-profile-input"
               />
             </label>
 
-            <label style={{ fontSize: 14 }}>
+            <label className="hf-profile-label">
               Confirmar nova senha
               <input
                 type="password"
                 name="confirm"
                 value={passwordForm.confirm}
                 onChange={handlePasswordChange}
-                style={getInputStyle(false)}
+                className="hf-profile-input"
               />
             </label>
 
-            <div
-              style={{
-                marginTop: spacing.md,
-                display: "flex",
-                gap: spacing.md,
-                alignItems: "center",
-              }}
-            >
+            <div className="hf-security-actions">
               <Button type="submit">Atualizar senha</Button>
-              <span
-                style={{
-                  fontSize: 12,
-                  color: colors.textMuted,
-                }}
-              >
+              <span className="hf-security-tip">
                 Recomenda-se usar pelo menos 6 caracteres.
               </span>
             </div>
 
             {passwordError && (
-              <p
-                style={{
-                  fontSize: 13,
-                  color: colors.error,
-                  marginTop: spacing.sm,
-                }}
-              >
-                {passwordError}
-              </p>
+              <p className="hf-security-error">{passwordError}</p>
             )}
             {passwordMessage && (
-              <p
-                style={{
-                  fontSize: 13,
-                  color: colors.success,
-                  marginTop: spacing.sm,
-                }}
-              >
-                {passwordMessage}
-              </p>
+              <p className="hf-security-success">{passwordMessage}</p>
             )}
           </form>
         </Card>
