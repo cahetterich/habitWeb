@@ -1,3 +1,4 @@
+// src/lib/useTodayHabits.js
 "use client";
 
 import { useEffect, useState } from "react";
@@ -39,7 +40,7 @@ export function useTodayHabits() {
     }
   }, [state, todayKey]);
 
-  function toggleHabit(id) {
+  function toggleToday(id) {
     setState((prev) => ({ ...prev, [id]: !prev[id] }));
   }
 
@@ -49,5 +50,5 @@ export function useTodayHabits() {
 
   const doneCount = Object.values(state).filter(Boolean).length;
 
-  return { todayKey, isDone, toggleHabit, doneCount };
+  return { todayKey, isDone, toggleToday, doneCount };
 }

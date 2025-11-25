@@ -21,13 +21,13 @@ export default function HabitDetailPage() {
       <LayoutContainer maxWidth={720}>
         <section className="hf-habit-section">
           <Card>
-            <h1 className="hf-not-found-title">Hábito não encontrado</h1>
+            <h1 className="hf-not-found-title">HÃ¡bito nÃ£o encontrado</h1>
             <p className="hf-not-found-text">
-              Não encontramos um hábito com esse identificador. Ele pode ter
-              sido removido ou não existe nesta versão.
+              NÃ£o encontramos um hÃ¡bito com esse identificador. Ele pode ter
+              sido removido ou nÃ£o existe nesta versÃ£o.
             </p>
             <Button type="button" onClick={() => router.push("/app/habits")}>
-              Voltar para a lista de hábitos
+              Voltar para a lista de hÃ¡bitos
             </Button>
           </Card>
         </section>
@@ -37,7 +37,7 @@ export default function HabitDetailPage() {
 
   const doneToday = isDone(habit.id);
 
-  // dados fake de histórico — só pra visual
+  // dados fake de histï¿½rico ï¿½ sï¿½ pra visual
   const history = [
     { label: "Hoje", done: doneToday },
     { label: "Ontem", done: true },
@@ -57,14 +57,14 @@ export default function HabitDetailPage() {
           onClick={() => router.push("/app/habits")}
           className="hf-habit-breadcrumb"
         >
-          ? Voltar para hábitos
+          ? Voltar para hÃ¡bitos
         </button>
 
         {/* Header */}
         <div>
           <h1 className="hf-habit-title">{habit.name}</h1>
           <p className="hf-habit-subtitle">
-            Acompanhe os detalhes, frequência e progresso deste hábito.
+            Acompanhe os detalhes, frequÃªncia e progresso deste hï¿½bito.
           </p>
           <span className="hf-habit-frequency">{habit.frequencyLabel}</span>
         </div>
@@ -75,52 +75,52 @@ export default function HabitDetailPage() {
           <Card>
             <h2 className="hf-card-title">Hoje</h2>
             <p className="hf-card-subtitle">
-              Controle rapidamente se você já concluiu este hábito no dia.
+              Controle rapidamente se vocÃª jÃ¡ concluiu este hÃ¡bito no dia.
             </p>
 
             <div className="hf-today-row">
               <span className={`hf-today-status ${doneToday ? "is-done" : ""}`}>
-                Status de hoje: <strong>{doneToday ? "Concluído" : "Pendente"}</strong>
+                Status de hoje: <strong>{doneToday ? "Concluï¿½do" : "Pendente"}</strong>
               </span>
               <Button type="button" onClick={() => toggleToday(habit.id)}>
-                {doneToday ? "Desmarcar hoje" : "Marcar como concluído"}
+                {doneToday ? "Desmarcar hoje" : "Marcar como concluï¿½do"}
               </Button>
             </div>
 
             <p className="hf-card-note">
-              Na integração com a API, esta seção será atualizada em tempo real
-              com base nos registros diários.
+              Na integraÃ§Ã£o com a API, esta seï¿½ï¿½o serï¿½ atualizada em tempo real
+              com base nos registros diï¿½rios.
             </p>
           </Card>
 
-          {/* Card Streak / métricas */}
+          {/* Card Streak / mï¿½tricas */}
           <Card>
             <h2 className="hf-card-title">Progresso</h2>
             <p className="hf-progress-text">
               <strong>{habit.baseStreak} dias</strong> de streak atual
             </p>
             <p className="hf-progress-hint">
-              Nesta versão usamos um valor fixo. Com a API, este número será
-              calculado com base no histórico real.
+              Nesta versï¿½o usamos um valor fixo. Com a API, este nï¿½mero serï¿½
+              calculado com base no histï¿½rico real.
             </p>
           </Card>
         </div>
 
-        {/* Card descrição */}
+        {/* Card descriï¿½ï¿½o */}
         <Card>
-          <h2 className="hf-card-title">Descrição do hábito</h2>
+          <h2 className="hf-card-title">Descriï¿½ï¿½o do hï¿½bito</h2>
           <p className="hf-description">
             {habit.description ||
-              "Você pode usar este espaço para descrever por que este hábito é importante, qual é o objetivo e em que contexto ele será realizado."}
+              "Vocï¿½ pode usar este espaï¿½o para descrever por que este hï¿½bito ï¿½ importante, qual ï¿½ o objetivo e em que contexto ele serï¿½ realizado."}
           </p>
         </Card>
 
-        {/* Histórico visual simples */}
+        {/* Histï¿½rico visual simples */}
         <Card>
-          <h2 className="hf-card-title">Histórico recente (exemplo)</h2>
+          <h2 className="hf-card-title">Histï¿½rico recente (exemplo)</h2>
           <p className="hf-history-description">
-            Exemplo ilustrativo dos últimos 7 dias. Dias concluídos aparecem em
-            destaque. Na integração final, este histórico virá da API.
+            Exemplo ilustrativo dos ï¿½ltimos 7 dias. Dias concluï¿½dos aparecem em
+            destaque. Na integraï¿½ï¿½o final, este histï¿½rico virï¿½ da API.
           </p>
 
           <div className="hf-history-list">
@@ -129,7 +129,7 @@ export default function HabitDetailPage() {
                 key={index}
                 className={`hf-history-badge ${day.done ? "is-done" : ""}`}
               >
-                {day.label} — {day.done ? "?" : "?"}
+                {day.label} ï¿½ {day.done ? "?" : "?"}
               </div>
             ))}
           </div>
