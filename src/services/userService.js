@@ -16,6 +16,7 @@ async function handleResponse(res) {
   return res.json();
 }
 
+// GET /api/me
 export async function getCurrentUser() {
   const res = await fetch(`${BASE_URL}/api/me`, {
     cache: "no-store",

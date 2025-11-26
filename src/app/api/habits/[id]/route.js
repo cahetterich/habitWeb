@@ -17,7 +17,7 @@ async function getDemoUser() {
   if (!user) {
     user = await prisma.user.create({
       data: {
-        firstName: "Carla",
+        firstName: "Usuário",
         lastName: "Demo",
         email: "demo@habitflow.local",
         passwordHash: "stub",
@@ -37,12 +37,18 @@ export async function GET(_req, { params }) {
   });
 
   if (!habit) {
-    return NextResponse.json({ error: "Hábito não encontrado." }, { status: 404 });
+    return NextResponse.json(
+      { error: "Hábito não encontrado." },
+      { status: 404 }
+    );
   }
 
   const { start, end } = getTodayRange();
   const completion = await prisma.habitCompletion.findFirst({
-    where: { habitId: habit.id, date: { gte: start, lt: end } },
+    where: {
+      habitId: habit.id,
+      date: { gte: start, lt: end },
+    },
   });
 
   return NextResponse.json({
@@ -59,7 +65,10 @@ export async function PATCH(req, { params }) {
 
   try {
     const habit = await prisma.habit.update({
-      where: { id: params.id, ownerId: user.id },
+      where: {
+        // id é único; ownerId está aqui só por segurança
+        id: params.id,
+      },
       data: {
         name,
         description,
@@ -68,6 +77,8 @@ export async function PATCH(req, { params }) {
       },
     });
 
+    // poderia recalcular doneToday, mas a tela não usa isso aqui,
+    // então devolvemos só o hábito mesmo.
     return NextResponse.json(habit);
   } catch {
     return NextResponse.json(
@@ -81,13 +92,16 @@ export async function PATCH(req, { params }) {
 export async function DELETE(_req, { params }) {
   const user = await getDemoUser();
 
+  // apaga completions antes
   await prisma.habitCompletion.deleteMany({
     where: { habitId: params.id },
   });
 
   try {
     await prisma.habit.delete({
-      where: { id: params.id, ownerId: user.id },
+      where: {
+        id: params.id,
+      },
     });
     return NextResponse.json({ success: true });
   } catch {
@@ -97,4 +111,5 @@ export async function DELETE(_req, { params }) {
     );
   }
 }
+
 

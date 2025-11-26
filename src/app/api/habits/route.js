@@ -31,33 +31,38 @@ async function getDemoUser() {
 // GET /api/habits
 export async function GET() {
   const user = await getDemoUser();
+  const { start, end } = getTodayRange();
 
   const habits = await prisma.habit.findMany({
     where: { ownerId: user.id },
     orderBy: { createdAt: "asc" },
-  });
-
-  if (!habits.length) {
-    return NextResponse.json([]);
-  }
-
-  const { start, end } = getTodayRange();
-
-  const completions = await prisma.habitCompletion.findMany({
-    where: {
-      habitId: { in: habits.map((h) => h.id) },
-      date: { gte: start, lt: end },
+    include: {
+      completions: {
+        where: {
+          date: {
+            gte: start,
+            lt: end,
+          },
+        },
+        select: { id: true },
+      },
     },
   });
 
-  const doneSet = new Set(completions.map((c) => c.habitId));
-
-  const payload = habits.map((h) => ({
-    ...h,
-    doneToday: doneSet.has(h.id),
+  const result = habits.map((h) => ({
+    id: h.id,
+    name: h.name,
+    description: h.description,
+    frequency: h.frequency,
+    frequencyLabel: h.frequencyLabel,
+    streak: h.streak,
+    bestStreak: h.bestStreak,
+    createdAt: h.createdAt,
+    updatedAt: h.updatedAt,
+    doneToday: h.completions.length > 0,
   }));
 
-  return NextResponse.json(payload);
+  return NextResponse.json(result);
 }
 
 // POST /api/habits
@@ -84,5 +89,12 @@ export async function POST(request) {
     },
   });
 
-  return NextResponse.json(habit, { status: 201 });
+  // devolve já num formato parecido com o GET
+  return NextResponse.json(
+    {
+      ...habit,
+      doneToday: false,
+    },
+    { status: 201 }
+  );
 }

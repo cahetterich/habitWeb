@@ -2,7 +2,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// mesmo esquema do getDemoUser das rotas de hábitos
 async function getDemoUser() {
   let user = await prisma.user.findFirst({
     where: { email: "demo@habitflow.local" },
@@ -25,11 +24,6 @@ async function getDemoUser() {
 // GET /api/me
 export async function GET() {
   const user = await getDemoUser();
-
-  return NextResponse.json({
-    id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-  });
+  return NextResponse.json(user);
 }
+

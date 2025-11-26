@@ -1,3 +1,4 @@
+// src/components/NavbarApp.jsx
 "use client";
 
 import Link from "next/link";
@@ -5,12 +6,28 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import LayoutContainer from "./LayoutContainer";
 import { colors, spacing } from "@/lib/designSystem";
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "@/services/userService";
 
 export default function NavbarApp() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const [apiUser, setApiUser] = useState(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const u = await getCurrentUser();
+        setApiUser(u);
+      } catch (err) {
+        console.error("Erro ao carregar usuário da API na navbar:", err);
+      }
+    }
+    load();
+  }, []);
 
   const displayName =
+    apiUser?.firstName ||
     user?.firstName ||
     (user?.name ? user.name.split(" ")[0] : "Usuário");
 
@@ -69,4 +86,5 @@ export default function NavbarApp() {
     </header>
   );
 }
+
 

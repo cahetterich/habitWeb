@@ -32,8 +32,7 @@ export default function HabitsPage() {
           name: h.name,
           freq: h.frequencyLabel || "—",
           today: !!h.doneToday,
-          streak:
-            h.bestStreak != null ? `${h.bestStreak} dias` : "0 dia",
+          streak: h.bestStreak != null ? `${h.bestStreak} dias` : "0 dia",
         }));
 
         setHabits(mapped);
@@ -84,8 +83,7 @@ export default function HabitsPage() {
           name: h.name,
           freq: h.frequencyLabel || "—",
           today: !!h.doneToday,
-          streak:
-            h.bestStreak != null ? `${h.bestStreak} dias` : "0 dia",
+          streak: h.bestStreak != null ? `${h.bestStreak} dias` : "0 dia",
         }));
         setHabits(mapped);
       } catch (e) {

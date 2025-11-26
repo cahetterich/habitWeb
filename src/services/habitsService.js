@@ -9,7 +9,7 @@ async function handleResponse(res) {
       const data = await res.json();
       if (data?.error) message = data.error;
     } catch {
-      // ignore
+      // ignora parse
     }
     throw new Error(message);
   }
@@ -47,6 +47,7 @@ export async function toggleHabitToday(id) {
   return handleResponse(res);
 }
 
+// GET /api/habits/:id
 export async function getHabit(id) {
   const res = await fetch(`${BASE_URL}/api/habits/${id}`, {
     cache: "no-store",
@@ -54,6 +55,7 @@ export async function getHabit(id) {
   return handleResponse(res);
 }
 
+// PATCH /api/habits/:id
 export async function updateHabit(id, data) {
   const res = await fetch(`${BASE_URL}/api/habits/${id}`, {
     method: "PATCH",
@@ -63,9 +65,18 @@ export async function updateHabit(id, data) {
   return handleResponse(res);
 }
 
+// DELETE /api/habits/:id
 export async function deleteHabit(id) {
   const res = await fetch(`${BASE_URL}/api/habits/${id}`, {
     method: "DELETE",
+  });
+  return handleResponse(res);
+}
+
+// GET /api/habits/summary  (para o gráfico do dashboard)
+export async function getHabitsSummary() {
+  const res = await fetch(`${BASE_URL}/api/habits/summary`, {
+    cache: "no-store",
   });
   return handleResponse(res);
 }
