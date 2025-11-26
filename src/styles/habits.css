@@ -133,3 +133,12 @@
   color: #6b7280;
   margin-top: 12px;
 }
+
+.hf-habit-edit-link {
+  font-size: 13px;
+  color: #4f46e5;
+  margin-left: 8px;
+}
+.hf-habit-edit-link:hover {
+  text-decoration: underline;
+}

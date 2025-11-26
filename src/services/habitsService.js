@@ -1,55 +1,71 @@
 // src/services/habitsService.js
-import { baseHabits } from '@/lib/habitsData';
 
-// por enquanto vamos simular um "banco" em memória
-let habitsDb = [...baseHabits];
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-function fakeDelay(ms = 300) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+async function handleResponse(res) {
+  if (!res.ok) {
+    let message = "Erro ao comunicar com a API.";
+    try {
+      const data = await res.json();
+      if (data?.error) message = data.error;
+    } catch {
+      // ignore
+    }
+    throw new Error(message);
+  }
+  return res.json();
 }
 
-// GET /habits
+// GET /api/habits
 export async function listHabits() {
-  await fakeDelay();
-  return [...habitsDb];
-}
-
-// POST /habits
-export async function createHabit(data) {
-  await fakeDelay();
-
-  const newHabit = {
-    id: String(Date.now()),
-    name: data.name,
-    description: data.description || '',
-    frequency: data.frequency || 'DAILY',
-    frequencyLabel: data.frequencyLabel || 'Todos os dias',
-    baseStreak: 0,
-    // qualquer outro campo que você já use em baseHabits
-  };
-
-  habitsDb = [...habitsDb, newHabit];
-  return newHabit;
-}
-
-// POST /habits/:id/toggle-today
-export async function toggleHabitToday(id) {
-  await fakeDelay();
-
-  habitsDb = habitsDb.map((habit) => {
-    if (String(habit.id) !== String(id)) return habit;
-    const doneToday = !habit.doneToday;
-    const baseStreak = doneToday
-      ? (habit.baseStreak || 0) + 1
-      : Math.max((habit.baseStreak || 1) - 1, 0);
-
-    return {
-      ...habit,
-      doneToday,
-      baseStreak
-    };
+  const res = await fetch(`${BASE_URL}/api/habits`, {
+    cache: "no-store",
   });
+  return handleResponse(res);
+}
 
-  const updated = habitsDb.find((h) => String(h.id) === String(id));
-  return updated;
+// POST /api/habits
+export async function createHabit(data) {
+  const res = await fetch(`${BASE_URL}/api/habits`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: data.name,
+      description: data.description,
+      frequency: data.frequency,
+      frequencyLabel: data.frequencyLabel,
+    }),
+  });
+  return handleResponse(res);
+}
+
+// POST /api/habits/:id/toggle-today
+export async function toggleHabitToday(id) {
+  const res = await fetch(`${BASE_URL}/api/habits/${id}/toggle-today`, {
+    method: "POST",
+  });
+  return handleResponse(res);
+}
+
+export async function getHabit(id) {
+  const res = await fetch(`${BASE_URL}/api/habits/${id}`, {
+    cache: "no-store",
+  });
+  return handleResponse(res);
+}
+
+export async function updateHabit(id, data) {
+  const res = await fetch(`${BASE_URL}/api/habits/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteHabit(id) {
+  const res = await fetch(`${BASE_URL}/api/habits/${id}`, {
+    method: "DELETE",
+  });
+  return handleResponse(res);
 }

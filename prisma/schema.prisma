@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String   @unique
+  passwordHash String
+
+  theme        String   @default("light")
+  receiveNews  Boolean  @default(true)
+
+  habits       Habit[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Habit {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  frequency      String
+  frequencyLabel String?
+  daysOfWeek     String?   // Ex: "MON,TUE,WED"
+
+  streak         Int       @default(0)
+  bestStreak     Int       @default(0)
+
+  owner          User      @relation(fields: [ownerId], references: [id])
+  ownerId        String
+
+  completions    HabitCompletion[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model HabitCompletion {
+  id        String   @id @default(cuid())
+  date      DateTime
+  done      Boolean  @default(true)
+
+  habit     Habit    @relation(fields: [habitId], references: [id])
+  habitId   String
+
+  createdAt DateTime @default(now())
+}

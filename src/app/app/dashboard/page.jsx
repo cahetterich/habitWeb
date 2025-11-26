@@ -1,10 +1,11 @@
 ﻿"use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Card from "@/components/Card";
 import LayoutContainer from "@/components/LayoutContainer";
 import { colors } from "@/lib/designSystem";
-import { baseHabits } from "@/lib/habitsData";
-import { useTodayHabits } from "@/lib/useTodayHabits";
+import { listHabits } from "@/services/habitsService";
+import { getCurrentUser } from "@/services/userService";
 import { useAuth } from "@/context/AuthContext";
 import "@/styles/dashboard.css";
 
@@ -16,7 +17,7 @@ function MetricCard({ label, value, suffix, subtitle, gradient }) {
         className="hf-metric-top"
         style={{
           backgroundImage:
-            gradient || `linear-gradient(135deg, ${colors.primary}, #73A9A9)`,
+            gradient || `linear-gradient(135deg, ${colors.primary}, "#73A9A9")`,
         }}
       >
         {label}
@@ -33,21 +34,68 @@ function MetricCard({ label, value, suffix, subtitle, gradient }) {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-  const { isDone, doneCount } = useTodayHabits();
+  const { user: authUser } = useAuth(); // fallback
+  const [apiUser, setApiUser] = useState(null);
+  const [habits, setHabits] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const totalHabits = baseHabits.length;
-  const longestStreak =
-    baseHabits.length > 0
-      ? Math.max(...baseHabits.map((h) => h.baseStreak))
-      : 0;
+  useEffect(() => {
+    async function load() {
+      try {
+        const [userData, habitsData] = await Promise.all([
+          getCurrentUser(),
+          listHabits(),
+        ]);
+
+        setApiUser(userData);
+        setHabits(habitsData);
+      } catch (err) {
+        console.error("Erro ao carregar dashboard:", err);
+        setError("Não foi possível carregar seus dados agora.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
+
+  // métricas calculadas a partir dos hábitos da API
+  const { totalHabits, doneToday, longestStreak } = useMemo(() => {
+    if (!habits || habits.length === 0) {
+      return {
+        totalHabits: 0,
+        doneToday: 0,
+        longestStreak: 0,
+      };
+    }
+
+    const total = habits.length;
+
+    // assumimos que a API devolve doneToday; se não vier, cai pra false
+    const done = habits.filter((h) => h.doneToday).length;
+
+    const best = habits.reduce(
+      (max, h) => Math.max(max, h.bestStreak ?? h.streak ?? 0),
+      0
+    );
+
+    return {
+      totalHabits: total,
+      doneToday: done,
+      longestStreak: best,
+    };
+  }, [habits]);
 
   const progressPercent =
-    totalHabits > 0 ? Math.round((doneCount / totalHabits) * 100) : 0;
+    totalHabits > 0 ? Math.round((doneToday / totalHabits) * 100) : 0;
 
+  // nome exibido no "Olá, ..."
   const firstName =
-    user?.firstName ||
-    (user?.name ? user.name.split(" ")[0] : "Usuário");
+    apiUser?.firstName ||
+    authUser?.firstName ||
+    (authUser?.name ? authUser.name.split(" ")[0] : "Usuário");
 
   return (
     <LayoutContainer maxWidth={1040}>
@@ -65,9 +113,18 @@ export default function DashboardPage() {
           <Card>
             <div className="hf-summary-card">
               <h2 className="hf-summary-title">Resumo de hoje</h2>
-              <p className="hf-summary-text">
-                Hoje você concluiu <strong>{doneCount} de {totalHabits} hábitos</strong>.
-              </p>
+
+              {loading ? (
+                <p className="hf-summary-text">Carregando...</p>
+              ) : (
+                <p className="hf-summary-text">
+                  Hoje você concluiu{" "}
+                  <strong>
+                    {doneToday} de {totalHabits} hábitos
+                  </strong>
+                  .
+                </p>
+              )}
 
               <div className="hf-progress-track">
                 <div
@@ -77,7 +134,8 @@ export default function DashboardPage() {
               </div>
 
               <p className="hf-summary-streak">
-                Streak geral: <strong>{longestStreak} dias seguidos</strong>
+                Streak geral:{" "}
+                <strong>{longestStreak} dias seguidos</strong>
               </p>
             </div>
           </Card>
@@ -93,7 +151,7 @@ export default function DashboardPage() {
           />
           <MetricCard
             label="Concluídos hoje"
-            value={doneCount}
+            value={doneToday}
             gradient={`linear-gradient(135deg, #73A9A9, #81AA8B)`}
             subtitle="Quantidade de hábitos marcados como feitos no dia."
           />
@@ -106,7 +164,7 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* hábitos de hoje */}
+        {/* hábitos de hoje – usando dados reais da API */}
         <Card>
           <h2 className="hf-today-title">Hábitos de hoje</h2>
           <p className="hf-today-subtitle">
@@ -114,27 +172,49 @@ export default function DashboardPage() {
             concluído na tela de Hábitos.
           </p>
 
-          {baseHabits.map((habit) => {
-            const done = isDone(habit.id);
-            return (
-              <div key={habit.id} className="hf-today-row">
-                <span>{habit.name}</span>
-                <span
-                  className={`hf-today-status ${done ? "is-done" : "is-pending"}`}
-                >
-                  {done ? "✅ Concluído" : "Pendente"}
-                </span>
-              </div>
-            );
-          })}
+          {loading && <p className="hf-today-row">Carregando hábitos...</p>}
+
+          {error && !loading && (
+            <p className="hf-today-row" style={{ color: colors.error }}>
+              {error}
+            </p>
+          )}
+
+          {!loading && !error && habits.length === 0 && (
+            <p className="hf-today-row">
+              Você ainda não cadastrou hábitos. Comece pela aba Hábitos.
+            </p>
+          )}
+
+          {!loading &&
+            !error &&
+            habits.map((habit) => {
+              const done = !!habit.doneToday;
+              return (
+                <div key={habit.id} className="hf-today-row">
+                  <span>{habit.name}</span>
+                  <span
+                    className={`hf-today-status ${
+                      done ? "is-done" : "is-pending"
+                    }`}
+                  >
+                    {done ? "✅ Concluído" : "Pendente"}
+                  </span>
+                </div>
+              );
+            })}
         </Card>
 
-        {/* gráfico */}
+        {/* gráfico ainda ilustrativo */}
         <Card>
           <h2 className="hf-graph-title">Últimos 7 dias</h2>
           <div aria-hidden="true" className="hf-graph-bars">
             {[40, 60, 50, 80, 70, 65, 90].map((h, i) => (
-              <div key={i} className="hf-graph-bar" style={{ height: `${h}%` }} />
+              <div
+                key={i}
+                className="hf-graph-bar"
+                style={{ height: `${h}%` }}
+              />
             ))}
           </div>
           <p className="hf-graph-caption">

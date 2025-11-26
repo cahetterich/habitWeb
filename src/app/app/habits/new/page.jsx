@@ -1,3 +1,4 @@
+// src/app/app/habits/new/page.jsx
 "use client";
 
 import { useState } from "react";
@@ -6,6 +7,7 @@ import Card from "@/components/Card";
 import Button from "@/components/Button";
 import { colors, spacing } from "@/lib/designSystem";
 import { useRouter } from "next/navigation";
+import { createHabit } from "@/services/habitsService";
 
 function getInputStyle(hasError) {
   return {
@@ -24,11 +26,12 @@ export default function NewHabitPage() {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    frequency: "daily",
+    frequency: "daily", // daily | weekdays | custom
   });
 
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+  const [apiError, setApiError] = useState("");
   const [saving, setSaving] = useState(false);
 
   function handleChange(e) {
@@ -58,24 +61,39 @@ export default function NewHabitPage() {
     return Object.keys(newErrors).length === 0;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setMessage("");
+    setApiError("");
 
     if (!validate()) return;
 
     setSaving(true);
 
-    // aqui depois entra a chamada real de API
-    setTimeout(() => {
-      setSaving(false);
-      setMessage("Hábito criado com sucesso (demo).");
+    try {
+      await createHabit({
+        name: form.name.trim(),
+        description: form.description.trim() || "",
+        frequency: form.frequency,
+        frequencyLabel:
+          form.frequency === "daily"
+            ? "Todos os dias"
+            : form.frequency === "weekdays"
+            ? "Seg–Sex"
+            : "Personalizado",
+      });
 
-      // opcional: voltar para a lista depois de um tempo
+      setMessage("Hábito criado com sucesso.");
+      // volta para lista (que já carrega da API)
       setTimeout(() => {
         router.push("/app/habits");
-      }, 800);
-    }, 500);
+      }, 600);
+    } catch (err) {
+      console.error(err);
+      setApiError(err.message || "Erro ao comunicar com a API.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -205,8 +223,8 @@ export default function NewHabitPage() {
                 marginTop: spacing.sm,
               }}
             >
-              Na integração final, este formulário irá salvar o hábito na API e
-              aparecer na lista de hábitos e no dashboard.
+              Este formulário já está salvando o hábito na API. Depois ele
+              aparece na lista de hábitos e no dashboard.
             </p>
 
             <div
@@ -229,6 +247,18 @@ export default function NewHabitPage() {
               </Button>
             </div>
 
+            {apiError && (
+              <p
+                style={{
+                  fontSize: 13,
+                  color: colors.error,
+                  marginTop: spacing.sm,
+                }}
+              >
+                {apiError}
+              </p>
+            )}
+
             {message && (
               <p
                 style={{
@@ -246,3 +276,4 @@ export default function NewHabitPage() {
     </LayoutContainer>
   );
 }
+

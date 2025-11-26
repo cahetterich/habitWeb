@@ -1,30 +1,90 @@
+// src/app/app/habits/[id]/page.jsx
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import LayoutContainer from "@/components/LayoutContainer";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
-import { baseHabits } from "@/lib/habitsData";
-import { useTodayHabits } from "@/lib/useTodayHabits";
-import "@/styles/habit-detail.css";
+import { colors, spacing } from "@/lib/designSystem";
+import { getHabit, toggleHabitToday } from "@/services/habitsService";
 
 export default function HabitDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { isDone, toggleToday } = useTodayHabits();
-
   const id = params?.id;
-  const habit = baseHabits.find((h) => String(h.id) === String(id));
 
-  if (!habit) {
+  const [habit, setHabit] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!id) return;
+
+    async function load() {
+      try {
+        const data = await getHabit(id);
+        setHabit(data);
+      } catch (err) {
+        console.error("Erro ao carregar hábito:", err);
+        setError(
+          "Não encontramos um hábito com esse identificador. Ele pode ter sido removido ou não existe nesta versão."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, [id]);
+
+  async function handleToggleToday() {
+    if (!habit) return;
+
+    try {
+      const result = await toggleHabitToday(habit.id);
+      setHabit((prev) =>
+        prev
+          ? {
+              ...prev,
+              doneToday: result.doneToday,
+              bestStreak: result.bestStreak,
+              streak: result.streak,
+            }
+          : prev
+      );
+    } catch (err) {
+      console.error("Erro ao marcar hoje:", err);
+      alert("Não foi possível atualizar o status de hoje. Tente novamente.");
+    }
+  }
+
+  if (loading) {
     return (
       <LayoutContainer maxWidth={720}>
-        <section className="hf-habit-section">
+        <section style={{ paddingTop: spacing.lg }}>
           <Card>
-            <h1 className="hf-not-found-title">Hábito não encontrado</h1>
-            <p className="hf-not-found-text">
-              Não encontramos um hábito com esse identificador. Ele pode ter
-              sido removido ou não existe nesta versão.
+            <p>Carregando hábito...</p>
+          </Card>
+        </section>
+      </LayoutContainer>
+    );
+  }
+
+  if (error || !habit) {
+    return (
+      <LayoutContainer maxWidth={720}>
+        <section style={{ paddingTop: spacing.lg }}>
+          <Card>
+            <h1 style={{ fontSize: 22, marginBottom: 8 }}>Hábito não encontrado</h1>
+            <p
+              style={{
+                fontSize: 14,
+                color: colors.textMuted,
+                marginBottom: spacing.md,
+              }}
+            >
+              {error}
             </p>
             <Button type="button" onClick={() => router.push("/app/habits")}>
               Voltar para a lista de hábitos
@@ -35,103 +95,75 @@ export default function HabitDetailPage() {
     );
   }
 
-  const doneToday = isDone(habit.id);
-
-  // dados fake de hist�rico � s� pra visual
-  const history = [
-    { label: "Hoje", done: doneToday },
-    { label: "Ontem", done: true },
-    { label: "-2 dias", done: true },
-    { label: "-3 dias", done: false },
-    { label: "-4 dias", done: true },
-    { label: "-5 dias", done: true },
-    { label: "-6 dias", done: false },
-  ];
-
   return (
-    <LayoutContainer maxWidth={960}>
-      <section className="hf-habit-section">
-        {/* Breadcrumb simples */}
+    <LayoutContainer maxWidth={720}>
+      <section
+        style={{
+          paddingTop: spacing.lg,
+          display: "flex",
+          flexDirection: "column",
+          gap: spacing.lg,
+        }}
+      >
         <button
           type="button"
           onClick={() => router.push("/app/habits")}
-          className="hf-habit-breadcrumb"
+          style={{
+            border: "none",
+            background: "none",
+            color: colors.textMuted,
+            fontSize: 13,
+            textAlign: "left",
+            padding: 0,
+            cursor: "pointer",
+          }}
         >
-          ? Voltar para hábitos
+          ← Voltar para hábitos
         </button>
 
-        {/* Header */}
-        <div>
-          <h1 className="hf-habit-title">{habit.name}</h1>
-          <p className="hf-habit-subtitle">
-            Acompanhe os detalhes, frequência e progresso deste h�bito.
-          </p>
-          <span className="hf-habit-frequency">{habit.frequencyLabel}</span>
-        </div>
-
-        {/* Grid de cards principais */}
-        <div className="hf-habit-main-grid">
-          {/* Card Resumo / hoje */}
-          <Card>
-            <h2 className="hf-card-title">Hoje</h2>
-            <p className="hf-card-subtitle">
-              Controle rapidamente se você já concluiu este hábito no dia.
-            </p>
-
-            <div className="hf-today-row">
-              <span className={`hf-today-status ${doneToday ? "is-done" : ""}`}>
-                Status de hoje: <strong>{doneToday ? "Conclu�do" : "Pendente"}</strong>
-              </span>
-              <Button type="button" onClick={() => toggleToday(habit.id)}>
-                {doneToday ? "Desmarcar hoje" : "Marcar como conclu�do"}
-              </Button>
-            </div>
-
-            <p className="hf-card-note">
-              Na integração com a API, esta se��o ser� atualizada em tempo real
-              com base nos registros di�rios.
-            </p>
-          </Card>
-
-          {/* Card Streak / m�tricas */}
-          <Card>
-            <h2 className="hf-card-title">Progresso</h2>
-            <p className="hf-progress-text">
-              <strong>{habit.baseStreak} dias</strong> de streak atual
-            </p>
-            <p className="hf-progress-hint">
-              Nesta vers�o usamos um valor fixo. Com a API, este n�mero ser�
-              calculado com base no hist�rico real.
-            </p>
-          </Card>
-        </div>
-
-        {/* Card descri��o */}
         <Card>
-          <h2 className="hf-card-title">Descri��o do h�bito</h2>
-          <p className="hf-description">
-            {habit.description ||
-              "Voc� pode usar este espa�o para descrever por que este h�bito � importante, qual � o objetivo e em que contexto ele ser� realizado."}
-          </p>
-        </Card>
-
-        {/* Hist�rico visual simples */}
-        <Card>
-          <h2 className="hf-card-title">Hist�rico recente (exemplo)</h2>
-          <p className="hf-history-description">
-            Exemplo ilustrativo dos �ltimos 7 dias. Dias conclu�dos aparecem em
-            destaque. Na integra��o final, este hist�rico vir� da API.
+          <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 4 }}>
+            {habit.name}
+          </h1>
+          <p
+            style={{
+              fontSize: 14,
+              color: colors.textMuted,
+              marginBottom: spacing.sm,
+            }}
+          >
+            Frequência: {habit.frequencyLabel || "—"}
           </p>
 
-          <div className="hf-history-list">
-            {history.map((day, index) => (
-              <div
-                key={index}
-                className={`hf-history-badge ${day.done ? "is-done" : ""}`}
-              >
-                {day.label} � {day.done ? "?" : "?"}
-              </div>
-            ))}
+          {habit.description && (
+            <p style={{ fontSize: 14, marginBottom: spacing.md }}>
+              {habit.description}
+            </p>
+          )}
+
+          <div
+            style={{
+              marginTop: spacing.md,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: spacing.md,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 14,
+                color: habit.doneToday ? colors.success : colors.textMuted,
+              }}
+            >
+              Status de hoje:{" "}
+              <strong>{habit.doneToday ? "Concluído" : "Pendente"}</strong> ·
+              Streak <strong>{habit.bestStreak ?? 0} dias</strong>
+            </span>
+
+            <Button type="button" onClick={handleToggleToday}>
+              {habit.doneToday ? "Desmarcar hoje" : "Marcar como concluído"}
+            </Button>
           </div>
         </Card>
       </section>
