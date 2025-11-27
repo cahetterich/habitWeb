@@ -1,4 +1,4 @@
-﻿//src/app/app/profile/page.jsx
+﻿// src/app/app/profile/page.jsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import "@/styles/profile.css";
 
 export default function ProfilePage() {
-  // 🔹 AQUI: pegamos também o login para atualizar o usuário
+  // 🔹 Agora pegamos também o `login` para atualizar o usuário global
   const { user, login } = useAuth();
 
   // ajuda a quebrar "Nome Sobrenome" quando vier de login simples
@@ -98,20 +98,21 @@ export default function ProfilePage() {
       return;
     }
 
-    // 🔹 NOVO: atualiza o usuário no contexto + localStorage
+    // 🔹 Monta um novo objeto de usuário e atualiza o AuthContext + localStorage
     const trimmedFirst = account.firstName.trim();
     const trimmedLast = account.lastName.trim();
-    const fullName = `${trimmedFirst} ${trimmedLast}`.trim();
+    const trimmedEmail = account.email.trim();
 
     const updatedUser = {
-      ...user,
+      ...(user || {}),
       firstName: trimmedFirst,
       lastName: trimmedLast,
-      name: fullName,          // mantém compatibilidade com lugares que usam `.name`
-      email: account.email.trim(),
+      email: trimmedEmail,
+      // mantém um campo `name` completo para quem usa só name
+      name: `${trimmedFirst} ${trimmedLast}`.trim(),
     };
 
-    // salva no AuthContext (e o AuthContext já salva no localStorage)
+    // isso dispara o setUser do AuthContext e salva no localStorage
     login(updatedUser);
 
     setAccountMessage("Dados salvos com sucesso.");
@@ -142,7 +143,7 @@ export default function ProfilePage() {
       return;
     }
 
-    // aqui depois entra a chamada real de API para troca de senha
+    // demo: sem backend, só feedback visual
     setPasswordMessage("Senha alterada com sucesso (demo).");
     setPasswordForm({ current: "", next: "", confirm: "" });
 

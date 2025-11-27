@@ -1,35 +1,57 @@
 // src/components/NavbarApp.jsx
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import LayoutContainer from "./LayoutContainer";
 import { colors, spacing } from "@/lib/designSystem";
-import { useEffect, useState } from "react";
-import { getCurrentUser } from "@/services/userService";
 
 export default function NavbarApp() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const [apiUser, setApiUser] = useState(null);
 
+  const [displayName, setDisplayName] = useState("Usuário");
+
+  // Função auxiliar para extrair o primeiro nome
+  function resolveName(sourceUser) {
+    if (!sourceUser) return "Usuário";
+
+    if (sourceUser.firstName && sourceUser.firstName.trim()) {
+      return sourceUser.firstName.trim();
+    }
+
+    if (sourceUser.name && sourceUser.name.trim()) {
+      return sourceUser.name.trim().split(" ")[0];
+    }
+
+    return "Usuário";
+  }
+
+ 
   useEffect(() => {
-    async function load() {
+    // 1) tenta pelo contexto
+    if (user) {
+      setDisplayName(resolveName(user));
+      return;
+    }
+
+    // 2) fallback: busca no localStorage
+    if (typeof window !== "undefined") {
       try {
-        const u = await getCurrentUser();
-        setApiUser(u);
-      } catch (err) {
-        console.error("Erro ao carregar usuário da API na navbar:", err);
+        const stored = window.localStorage.getItem("habitflow:user");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setDisplayName(resolveName(parsed));
+        } else {
+          setDisplayName("Usuário");
+        }
+      } catch {
+        setDisplayName("Usuário");
       }
     }
-    load();
-  }, []);
-
-  const displayName =
-    apiUser?.firstName ||
-    user?.firstName ||
-    (user?.name ? user.name.split(" ")[0] : "Usuário");
+  }, [user]);
 
   function handleLogout() {
     logout();
@@ -86,5 +108,6 @@ export default function NavbarApp() {
     </header>
   );
 }
+
 
 
