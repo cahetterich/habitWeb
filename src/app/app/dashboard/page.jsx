@@ -5,11 +5,15 @@ import { useEffect, useMemo, useState } from "react";
 import Card from "@/components/Card";
 import LayoutContainer from "@/components/LayoutContainer";
 import { colors } from "@/lib/designSystem";
-import { listHabits, toggleHabitToday } from "@/services/habitsService";
-import { getCurrentUser } from "@/services/userService";
+import {
+  listHabits,
+  toggleHabitToday,
+  getHabitsSummary, // 🔹 importa o resumo pro gráfico
+} from "@/services/habitsService";
 import { useAuth } from "@/context/AuthContext";
 import "@/styles/dashboard.css";
 
+// Card de métrica com topo em gradiente
 function MetricCard({ label, value, suffix, subtitle, gradient }) {
   return (
     <div className="hf-metric-card">
@@ -34,31 +38,35 @@ function MetricCard({ label, value, suffix, subtitle, gradient }) {
 }
 
 export default function DashboardPage() {
-  const { user: authUser } = useAuth(); // fallback do contexto
-  const [apiUser, setApiUser] = useState(null);
+  const { user: authUser } = useAuth();
+
   const [habits, setHabits] = useState([]);
+  const [summary, setSummary] = useState([]); // 🔹 dados do gráfico
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // -------- CARREGAR DADOS INICIAIS --------
+  // -------- CARREGAR DADOS INICIAIS (hábitos + gráfico) --------
   async function reloadData() {
     try {
       setError("");
-      const [userData, habitsData] = await Promise.all([
-        getCurrentUser(),
+
+      const [habitsData, summaryData] = await Promise.all([
         listHabits(),
+        getHabitsSummary(),
       ]);
 
-      setApiUser(userData);
       setHabits(
         habitsData.map((h) => ({
           ...h,
           doneToday: !!h.doneToday,
         }))
       );
+
+      setSummary(Array.isArray(summaryData) ? summaryData : []);
     } catch (err) {
       console.error("Erro ao carregar dashboard:", err);
       setError("Não foi possível carregar seus dados agora.");
+      setSummary([]);
     } finally {
       setLoading(false);
     }
@@ -88,13 +96,12 @@ export default function DashboardPage() {
     totalHabits > 0 ? Math.round((doneToday / totalHabits) * 100) : 0;
 
   const firstName =
-    apiUser?.firstName ||
     authUser?.firstName ||
     (authUser?.name ? authUser.name.split(" ")[0] : "Usuário");
 
   // -------- TOGGLE HOJE (DASHBOARD) --------
   async function handleToggleToday(id) {
-    // 1) update otimista na UI (igual à tela de Hábitos)
+    // 1) update otimista
     setHabits((prev) =>
       prev.map((habit) =>
         habit.id === id ? { ...habit, doneToday: !habit.doneToday } : habit
@@ -102,10 +109,10 @@ export default function DashboardPage() {
     );
 
     try {
-      // 2) chama a API para persistir
+      // 2) chama API
       const result = await toggleHabitToday(id);
 
-      // 3) ajusta com o que voltou da API (doneToday + streak/bestStreak)
+      // 3) ajusta hábito com dados reais que voltaram
       setHabits((prev) =>
         prev.map((habit) =>
           habit.id === id
@@ -118,10 +125,20 @@ export default function DashboardPage() {
             : habit
         )
       );
+
+      // 4) atualiza gráfico com os últimos 7 dias já recalculados
+      try {
+        const summaryData = await getHabitsSummary();
+        setSummary(Array.isArray(summaryData) ? summaryData : []);
+      } catch (err) {
+        console.error("Erro ao atualizar gráfico:", err);
+      }
     } catch (err) {
       console.error("Erro ao marcar hábito pelo dashboard:", err);
-      alert(err.message || "Não foi possível atualizar o hábito. Vou recarregar os dados.");
-      // 4) se der ruim, recarrega do servidor para ficar consistente
+      alert(
+        err.message ||
+          "Não foi possível atualizar o hábito. Vou recarregar os dados."
+      );
       reloadData();
     }
   }
@@ -163,8 +180,7 @@ export default function DashboardPage() {
               </div>
 
               <p className="hf-summary-streak">
-                Streak geral:{" "}
-                <strong>{longestStreak} dias seguidos</strong>
+                Streak geral: <strong>{longestStreak} dias seguidos</strong>
               </p>
             </div>
           </Card>
@@ -241,20 +257,37 @@ export default function DashboardPage() {
             })}
         </Card>
 
-        {/* gráfico – ainda ilustrativo, mas pronto pra ligar em dados reais depois */}
+        {/* gráfico conectado à API */}
         <Card>
           <h2 className="hf-graph-title">Últimos 7 dias</h2>
-          <div aria-hidden="true" className="hf-graph-bars">
-            {[40, 60, 50, 80, 70, 65, 90].map((h, i) => (
-              <div key={i} className="hf-graph-bar" style={{ height: `${h}%` }} />
-            ))}
-          </div>
+
+          {summary.length === 0 ? (
+            <p className="hf-today-row">
+              Ainda não há dados suficientes para o gráfico.
+            </p>
+          ) : (
+            <div aria-hidden="true" className="hf-graph-bars">
+              {summary.map((day) => {
+                // garante pelo menos uma barrinha mínima quando não completou nada
+                const height = day.completionRate > 0 ? day.completionRate : 6;
+                return (
+                  <div
+                    key={day.date}
+                    className="hf-graph-bar"
+                    style={{ height: `${height}%` }}
+                    title={`${day.weekday}: ${day.completed}/${day.totalHabits}`}
+                  />
+                );
+              })}
+            </div>
+          )}
+
           <p className="hf-graph-caption">
-            Gráfico ilustrativo. Em breve, conectado aos dados reais.
+            Agora este gráfico usa os seus registros reais de conclusão dos
+            últimos 7 dias.
           </p>
         </Card>
       </section>
     </LayoutContainer>
   );
 }
-

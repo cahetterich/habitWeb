@@ -45,7 +45,7 @@ export default function NavbarPublic() {
             {/* Link para seção "Como funciona" da própria landing */}
             <Link href="/#como-funciona">Como funciona</Link>
 
-            {!isAuthenticated && (
+            {/* {!isAuthenticated && ( */}
               <>
                 <Link href="/login">Entrar</Link>
                 <Link
@@ -61,7 +61,7 @@ export default function NavbarPublic() {
                   Criar conta
                 </Link>
               </>
-            )}
+            {/* )} */}
           </div>
         </nav>
       </LayoutContainer>

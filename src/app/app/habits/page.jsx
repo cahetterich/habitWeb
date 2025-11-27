@@ -11,9 +11,27 @@ import { listHabits, toggleHabitToday } from "@/services/habitsService";
 import "@/styles/habits.css";
 
 const fallbackHabits = [
-  { id: "1", name: "Ler 10 páginas", freq: "Diário", today: false, streak: "3 dias" },
-  { id: "2", name: "Beber 2L de água", freq: "Seg à Sex", today: false, streak: "7 dias" },
-  { id: "3", name: "Estudar 30min", freq: "Diário", today: false, streak: "1 dia" },
+  {
+    id: "1",
+    name: "Ler 10 páginas",
+    freq: "Diário",
+    today: false,
+    streak: "3 dias",
+  },
+  {
+    id: "2",
+    name: "Beber 2L de água",
+    freq: "Seg à Sex",
+    today: false,
+    streak: "7 dias",
+  },
+  {
+    id: "3",
+    name: "Estudar 30min",
+    freq: "Diário",
+    today: false,
+    streak: "1 dia",
+  },
 ];
 
 export default function HabitsPage() {
@@ -74,7 +92,9 @@ export default function HabitsPage() {
       );
     } catch (err) {
       console.error("Erro ao marcar hoje:", err);
-      alert("Não foi possível atualizar o status de hoje. Vou recarregar a lista.");
+      alert(
+        "Não foi possível atualizar o status de hoje. Vou recarregar a lista."
+      );
 
       try {
         const apiHabits = await listHabits();
@@ -111,8 +131,8 @@ export default function HabitsPage() {
           <div>
             <h1 className="hf-habits-title">Seus hábitos</h1>
             <p className="hf-habits-subtitle">
-              Liste, filtre e acompanhe todos os seus hábitos diários. Clique no nome do
-              hábito para ver mais detalhes.
+              Liste, filtre e acompanhe todos os seus hábitos diários. Clique no
+              nome do hábito para ver mais detalhes.
             </p>
           </div>
           <Link href="/app/habits/new">
@@ -132,21 +152,27 @@ export default function HabitsPage() {
                 <button
                   type="button"
                   onClick={() => setFilter("all")}
-                  className={`hf-filter-pill ${filter === "all" ? "is-active" : ""}`}
+                  className={`hf-filter-pill ${
+                    filter === "all" ? "is-active" : ""
+                  }`}
                 >
                   Todos
                 </button>
                 <button
                   type="button"
                   onClick={() => setFilter("done")}
-                  className={`hf-filter-pill ${filter === "done" ? "is-active" : ""}`}
+                  className={`hf-filter-pill ${
+                    filter === "done" ? "is-active" : ""
+                  }`}
                 >
                   Concluídos hoje
                 </button>
                 <button
                   type="button"
                   onClick={() => setFilter("pending")}
-                  className={`hf-filter-pill ${filter === "pending" ? "is-active" : ""}`}
+                  className={`hf-filter-pill ${
+                    filter === "pending" ? "is-active" : ""
+                  }`}
                 >
                   Pendentes
                 </button>
@@ -182,7 +208,10 @@ export default function HabitsPage() {
               {filteredHabits.map((habit) => (
                 <div key={habit.id} className="hf-habits-row">
                   <span>
-                    <Link href={`/app/habits/${habit.id}`} className="hf-habit-link">
+                    <Link
+                      href={`/app/habits/${habit.id}`}
+                      className="hf-habit-link"
+                    >
                       <span className="hf-habit-link-text">{habit.name}</span>
                     </Link>
                   </span>
@@ -190,11 +219,24 @@ export default function HabitsPage() {
                   <span>{habit.freq}</span>
                   <span>{habit.today ? "✅" : "❌"}</span>
                   <span>{habit.streak}</span>
+
+                  {/* 🔹 AQUI: botão Editar + botão Marcar hoje */}
                   <div className="hf-habit-actions">
+                    {/* Editar / Excluir */}
+                    <Link
+                      href={`/app/habits/${habit.id}/edit`}
+                      className="hf-habit-edit-link"
+                      style={{ marginRight: 8 }}
+                    >
+                      Editar
+                    </Link>
+
                     <button
                       type="button"
                       onClick={() => handleToggleToday(habit.id)}
-                      className={`hf-habit-toggle ${habit.today ? "is-done" : ""}`}
+                      className={`hf-habit-toggle ${
+                        habit.today ? "is-done" : ""
+                      }`}
                     >
                       {habit.today ? "Desmarcar" : "Marcar hoje"}
                     </button>

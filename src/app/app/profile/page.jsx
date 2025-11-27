@@ -1,4 +1,5 @@
-﻿"use client";
+﻿//src/app/app/profile/page.jsx
+"use client";
 
 import { useEffect, useState } from "react";
 import LayoutContainer from "@/components/LayoutContainer";
@@ -8,7 +9,8 @@ import { useAuth } from "@/context/AuthContext";
 import "@/styles/profile.css";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  // 🔹 AQUI: pegamos também o login para atualizar o usuário
+  const { user, login } = useAuth();
 
   // ajuda a quebrar "Nome Sobrenome" quando vier de login simples
   function splitNameParts(name) {
@@ -96,7 +98,22 @@ export default function ProfilePage() {
       return;
     }
 
-    // aqui depois entra a chamada real de API + atualização do contexto
+    // 🔹 NOVO: atualiza o usuário no contexto + localStorage
+    const trimmedFirst = account.firstName.trim();
+    const trimmedLast = account.lastName.trim();
+    const fullName = `${trimmedFirst} ${trimmedLast}`.trim();
+
+    const updatedUser = {
+      ...user,
+      firstName: trimmedFirst,
+      lastName: trimmedLast,
+      name: fullName,          // mantém compatibilidade com lugares que usam `.name`
+      email: account.email.trim(),
+    };
+
+    // salva no AuthContext (e o AuthContext já salva no localStorage)
+    login(updatedUser);
+
     setAccountMessage("Dados salvos com sucesso.");
     setTimeout(() => setAccountMessage(""), 3000);
   }
@@ -134,9 +151,7 @@ export default function ProfilePage() {
 
   const displayFirstName =
     account.firstName ||
-    (user?.firstName ||
-      splitNameParts(user?.name).first ||
-      "U");
+    (user?.firstName || splitNameParts(user?.name).first || "U");
 
   const initialLetter = displayFirstName[0]?.toUpperCase() || "U";
 
@@ -168,7 +183,11 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <form onSubmit={handleAccountSubmit} noValidate className="hf-profile-form">
+            <form
+              onSubmit={handleAccountSubmit}
+              noValidate
+              className="hf-profile-form"
+            >
               <label className="hf-profile-label">
                 Nome
                 <input
@@ -183,10 +202,15 @@ export default function ProfilePage() {
                       ? "profile-first-name-error"
                       : undefined
                   }
-                  className={`hf-profile-input ${accountErrors.firstName ? "has-error" : ""}`}
+                  className={`hf-profile-input ${
+                    accountErrors.firstName ? "has-error" : ""
+                  }`}
                 />
                 {accountErrors.firstName && (
-                  <p id="profile-first-name-error" className="hf-profile-error">
+                  <p
+                    id="profile-first-name-error"
+                    className="hf-profile-error"
+                  >
                     {accountErrors.firstName}
                   </p>
                 )}
@@ -206,10 +230,15 @@ export default function ProfilePage() {
                       ? "profile-last-name-error"
                       : undefined
                   }
-                  className={`hf-profile-input ${accountErrors.lastName ? "has-error" : ""}`}
+                  className={`hf-profile-input ${
+                    accountErrors.lastName ? "has-error" : ""
+                  }`}
                 />
                 {accountErrors.lastName && (
-                  <p id="profile-last-name-error" className="hf-profile-error">
+                  <p
+                    id="profile-last-name-error"
+                    className="hf-profile-error"
+                  >
                     {accountErrors.lastName}
                   </p>
                 )}
@@ -227,7 +256,9 @@ export default function ProfilePage() {
                   aria-describedby={
                     accountErrors.email ? "profile-email-error" : undefined
                   }
-                  className={`hf-profile-input ${accountErrors.email ? "has-error" : ""}`}
+                  className={`hf-profile-input ${
+                    accountErrors.email ? "has-error" : ""
+                  }`}
                 />
                 {accountErrors.email && (
                   <p id="profile-email-error" className="hf-profile-error">
@@ -292,7 +323,11 @@ export default function ProfilePage() {
             validada no servidor.
           </p>
 
-          <form onSubmit={handlePasswordSubmit} noValidate className="hf-security-form">
+          <form
+            onSubmit={handlePasswordSubmit}
+            noValidate
+            className="hf-security-form"
+          >
             <label className="hf-profile-label">
               Senha atual
               <input
@@ -345,3 +380,4 @@ export default function ProfilePage() {
     </LayoutContainer>
   );
 }
+
